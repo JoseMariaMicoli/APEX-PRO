@@ -61,6 +61,7 @@ Target Host: [Hostname]
 | Phase            | Technique | Alert Triggered? | TTD (Min) |
 | :---             | :---      | :---             | :---      |
 | Persistence      | T1547.001 | [YES/NO]         | [ ]       |
+| Lateral Movement | T1135     | [YES/NO]         | [ ]       |
 | Exfiltration     | T1041     | [YES/NO]         | [ ]       |
 | Canary Trip      | Honey-pot | [YES/NO]         | [ ]       |
 | Encryption       | T1486     | [YES/NO]         | [ ]       |

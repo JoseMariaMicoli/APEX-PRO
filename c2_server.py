@@ -17,6 +17,7 @@ SPLASH = r"""
 ██║  ██║██║     ███████╗██╔╝ ██╗    ██║     ██║  ██║╚██████╔╝
 ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝    ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
             APEX PRO: RANSOMWARE EMULATION FRAMEWORK
+                C2 Command & Control Server
 """
 
 async def init_db():
