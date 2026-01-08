@@ -1,0 +1,13 @@
+# Python environment
+apexEnv/
+__pycache__/
+*.py[cod]
+
+# Apex Pro Data (Do not commit victim info)
+apex_vault.db
+*.locked
+RECOVER_FILES_NOW.html
+
+# IDE files
+.vscode/
+.idea/
