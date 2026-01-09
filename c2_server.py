@@ -3,6 +3,11 @@ from quart import Quart, request, jsonify
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
 from cryptography.hazmat.primitives import padding
 from cryptography.hazmat.backends import default_backend
+import logging
+
+# Silence the specific hypercorn/asyncio transition errors
+logging.getLogger('hypercorn.error').setLevel(logging.CRITICAL)
+logging.getLogger('asyncio').setLevel(logging.CRITICAL)
 
 app = Quart(__name__)
 DB_FILE = "apex_vault.db"
@@ -45,6 +50,8 @@ def decrypt_payload(b64_data):
 
 @app.route('/api/v1/telemetry', methods=['POST'])
 async def telemetry():
+    # ADD THIS LINE FOR DEBUGGING:
+    print(f"[*] Connection received from: {request.remote_addr}")
     req_data = await request.get_json()
     b64_payload = req_data.get('payload')
     try:
@@ -59,6 +66,18 @@ async def telemetry():
     except Exception as e:
         return jsonify({"status": "error", "msg": str(e)}), 400
 
+from hypercorn.config import Config
+from hypercorn.asyncio import serve
+
 if __name__ == '__main__':
-    # If running without sudo, change port to 8443
-    app.run(host='0.0.0.0', port=443, ssl_context='adhoc')
+    config = Config()
+    config.bind = ["0.0.0.0:443"]
+    config.certfile = 'apex_cert.pem'
+    config.keyfile = 'apex_key.pem'
+    
+    # Add these lines to handle the timeout gracefully
+    config.ssl_handshake_timeout = 10 
+    config.keep_alive_timeout = 5
+    config.graceful_timeout = 0 # Forces immediate closure without waiting
+
+    asyncio.run(serve(app, config))

