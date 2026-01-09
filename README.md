@@ -53,7 +53,7 @@
 
     [B] Lab Preparation (Windows Client)
 
-    Generate dummy data for the simulation:
+      Generate dummy data for the simulation:
         .\GenerateVictimData.ps1 -RootPath "C:\SimulationData"
 
     [C] Simulation Execution
@@ -64,10 +64,14 @@
         Phase 2: Recovery (Decryption)
             .\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
 
-    [D] Post-Incident Reporting
+    [D] Post-Incident Documentation
 
-        Extract telemetry and canary alerts from the C2 database:
-            python3 apex_report.py
+      Extract telemetry and canary alerts from the C2 database:
+        Complete the step 4 INCIDENT RESPONSE (IR) EXERCISE TEMPLATE
+
+    [E] Reporting
+        Generate a professional PDF summary of the simulation results:
+        python3 apex_report.py
 
 4. INCIDENT RESPONSE (IR) EXERCISE TEMPLATE - MITRE ATT&CK Mapping
 ------------------------------------------------------------------
