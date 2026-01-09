@@ -15,3 +15,5 @@ apex_cert.pem
 apex_key.pem
 __pycache__/
 Apex_Simulation_Report.pdf
+script_b64.txt
+ApexUpdater.exe
