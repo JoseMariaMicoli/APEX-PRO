@@ -6,7 +6,7 @@
 ██║  ██║██║     ███████╗██╔╝ ██╗     ██║     ██║  ██║╚██████╔╝
 ╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 
-            APEX PRO: RANSOMWARE EMULATION FRAMEWORK
+          ⚡ APEX PRO: RANSOMWARE EMULATION FRAMEWORK
          [ ADVERSARY EMULATION & PURPLE TEAM FRAMEWORK ]
 
 1. Project Overview
@@ -114,6 +114,8 @@
     | Internal Defacement| T1491.001 | [YES/NO]         | [ ]       |
     | Obfuscation        | T1027     | [YES/NO]         | [ ]       |
     | Execution          | T1059.001 | [YES/NO]         | [ ]       |
+
+    📝 Note: All simulations include a standardized Incident Response (IR) Exercise Template to help Blue Teams measure Mean-Time-to-Detection (MTTD) and Alert effectiveness across every stage of the kill chain.
 
 5. RULES OF ENGAGEMENT (RoE) & SAFETY
 -------------------------------------
