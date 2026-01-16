@@ -282,11 +282,18 @@ class ApexC2Shell(cmd.Cmd):
         console.print(Panel(info_table, title="[bold white]APEX PRO v2.9 - SECURE C2 HYPERVISOR[/]", border_style="red", expand=False))
 
     def do_usage(self, arg):
+        """Displays the tactical command specification in a framed table."""
         self.do_splash(None)
+        from rich import box # Ensure box is imported
+        
         table = Table(
             title="[bold cyan]APEX PRO TACTICAL COMMAND SPECIFICATION[/]",
-            show_header=True, header_style="bold cyan", border_style="bold red",
-            box=None, padding=(0, 1), collapse_padding=True
+            show_header=True, 
+            header_style="bold cyan", 
+            border_style="bold red",
+            box=box.SQUARE, # This adds the perfect square frame
+            padding=(0, 1), 
+            collapse_padding=True
         )
 
         table.add_column("COMMAND", style="bold yellow", width=12)
@@ -307,20 +314,44 @@ class ApexC2Shell(cmd.Cmd):
         table.add_row("exit", "Secure Tactical Shutdown", "exit")
 
         console.print(table)
-        console.print(f"[bold red]" + "─" * 82 + "[/]")
+
+    # --- TACTICAL HELP DEFINITIONS WITH FRAMES ---
 
     def help_report(self): 
-        console.print("[bold yellow]report[/]: Generates a detailed breakdown of all activity (Persistence, Exfil, Encryption) for every identified target in the vault.")
+        console.print(Panel("[bold yellow]report[/]: Generates a detailed breakdown of all activity (Persistence, Exfil, Encryption and Lateral Movement) for every identified target in the vault.", border_style="cyan", title="[white]Help: report[/]"))
 
-    def help_set(self): console.print("[bold yellow]set[/]: Updates global variables like LHOST or LPORT.")
-    def help_run(self): console.print("[bold yellow]run[/]: Activates the C2 listener to receive agent pings.")
-    def help_serve(self): console.print("[bold yellow]serve[/]: Starts the HTTP server for payload delivery.")
-    def help_build(self): console.print("[bold yellow]build[/]: Patches the PS1 script with current network info.")
-    def help_compile(self): console.print("[bold yellow]compile[/]: Compiles the C# runner into a Windows EXE.")
-    def help_gen_dec(self): console.print("[bold yellow]gen_dec[/]: Creates the decryptor for simulation recovery.")
-    def help_summary(self): console.print("[bold yellow]summary[/]: Displays an overview of compromised targets.")
-    def help_logs(self): console.print("[bold yellow]logs[/]: Prints the raw tactical event logs from the DB.")
-    def help_exit(self): console.print("[bold yellow]exit[/]: Closes all sockets and exits safely.")
+    def help_set(self): 
+        console.print(Panel("[bold yellow]set[/]: Updates global variables like LHOST or LPORT.", border_style="cyan", title="[white]Help: set[/]"))
+
+    def help_run(self): 
+        console.print(Panel("[bold yellow]run[/]: Activates the C2 listener to receive agent pings.", border_style="cyan", title="[white]Help: run[/]"))
+
+    def help_serve(self): 
+        console.print(Panel("[bold yellow]serve[/]: Starts the HTTP server for payload delivery.", border_style="cyan", title="[white]Help: serve[/]"))
+
+    def help_build(self): 
+        console.print(Panel("[bold yellow]build[/]: Patches the PS1 script with current network info.", border_style="cyan", title="[white]Help: build[/]"))
+
+    def help_compile(self): 
+        console.print(Panel("[bold yellow]compile[/]: Compiles the C# runner into a Windows EXE.", border_style="cyan", title="[white]Help: compile[/]"))
+
+    def help_gen_dec(self): 
+        console.print(Panel("[bold yellow]gen_dec[/]: Creates the decryptor for simulation recovery.", border_style="cyan", title="[white]Help: gen_dec[/]"))
+
+    def help_summary(self): 
+        console.print(Panel("[bold yellow]summary[/]: Displays an overview of compromised targets.", border_style="cyan", title="[white]Help: summary[/]"))
+
+    def help_logs(self): 
+        console.print(Panel("[bold yellow]logs[/]: Prints the raw tactical event logs from the DB.", border_style="cyan", title="[white]Help: logs[/]"))
+
+    def help_exit(self): 
+        console.print(Panel("[bold yellow]exit[/]: Closes all sockets and exits safely.", border_style="cyan", title="[white]Help: exit[/]"))
+
+    def help_reset_db(self): 
+        console.print(Panel("[bold yellow]reset_db[/]: Reset Database Schema.", border_style="cyan", title="[white]Help: exit[/]"))
+
+    def help_splash(self): 
+        console.print(Panel("[bold yellow]splash[/]: Print Splashscreen, refresh UI and Status.", border_style="cyan", title="[white]Help: exit[/]"))
 
     def do_logs(self, arg):
         async def fetch_logs():
