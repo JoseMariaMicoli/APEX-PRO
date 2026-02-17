@@ -1,3 +1,19 @@
+/*
+Copyright (c) 2026 José María Micoli
+Licensed under the Business Source License 1.1
+Change Date: 2033-02-17
+Change License: Apache-2.0
+
+You may:
+✔ Study
+✔ Modify
+✔ Use for internal security testing
+
+You may NOT:
+✘ Offer as a commercial service
+✘ Sell derived competing products
+*/
+
 import asyncio, aiosqlite, os, json, cmd, threading, time, sys, base64, re, urllib.request, socket, sqlite3
 # --- CRYPTOGRAPHY IMPORTS ---
 from cryptography.hazmat.primitives.ciphers import Cipher, algorithms, modes
